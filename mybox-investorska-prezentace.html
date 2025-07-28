@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBox - Investorská prezentace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: 1;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: #ffffff;
+            z-index: 1;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            color: #64b5f6;
+            z-index: 1;
+        }
+
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .highlight {
+            color: #ffd54f;
+            font-weight: bold;
+        }
+
+        .big-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: #4caf50;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(0,0,0,0.3);
+            font-weight: bold;
+            color: #64b5f6;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .logo {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 300px;
+            margin: 40px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .bar {
+            width: 80px;
+            background: linear-gradient(to top, #4caf50, #81c784);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .bar:hover {
+            transform: translateY(-10px);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: #ffd54f;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h4 {
+            color: #64b5f6;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        blockquote {
+            font-style: italic;
+            font-size: 1.3em;
+            margin: 30px 0;
+            padding: 20px;
+            border-left: 4px solid #4caf50;
+            background: rgba(255,255,255,0.05);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .cta {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(76,175,80,0.4);
+        }
+
+        .cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(76,175,80,0.6);
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 2em; }
+            p, li { font-size: 1.1em; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- Slide 1: Titulní -->
+        <div class="slide active">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">1/15</div>
+            <h1>MyBox</h1>
+            <h2>Revoluce v doručování zásilek</h2>
+            <p style="font-size: 1.5em; margin-top: 40px;">Investorská prezentace 2025</p>
+            <p style="margin-top: 20px; color: #64b5f6;">Inteligentní doručovací boxy pro každého</p>
+        </div>
+
+        <!-- Slide 2: Executive Summary -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">2/15</div>
+            <h2>Executive Summary</h2>
+            <ul>
+                <li><span class="highlight">Český lídr</span> v inteligentních doručovacích boxech</li>
+                <li>Evropský trh poroste z <span class="highlight">€295.8M</span> (2024) na <span class="highlight">€802.1M</span> (2033)</li>
+                <li>Až <span class="highlight">70% nižší cena</span> než globální konkurence</li>
+                <li>Plánovaný obrat: <span class="highlight">175M Kč</span> (1. rok) → <span class="highlight">525M Kč</span> (2. rok)</li>
+                <li>Hrubá marže: <span class="highlight">50%</span> (2x vyšší než průmyslový standard)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Problém a řešení -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">3/15</div>
+            <h2>Problém a řešení</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>🚨 Problém</h4>
+                    <ul style="list-style: none;">
+                        <li>📦 162 zásilek/domácnost/rok</li>
+                        <li>🔓 90,000 balíků denně kradeno (NYC)</li>
+                        <li>💸 €3-5 za neúspěšné doručení</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>✅ Řešení MyBox</h4>
+                    <ul>
+                        <li>Bezpečné doručení pod kontrolou</li>
+                        <li>24/7 dostupnost</li>
+                        <li>Flexibilní škálování</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Cenové srovnání -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">4/15</div>
+            <h2>Cenová revoluce</h2>
+            <table>
+                <tr>
+                    <th>Poskytovatel</th>
+                    <th>Cena systému</th>
+                    <th>MyBox úspora</th>
+                </tr>
+                <tr>
+                    <td>Pitney Bowes (USA)</td>
+                    <td>138,000 - 483,000 Kč</td>
+                    <td style="color: #4caf50;">až 96%</td>
+                </tr>
+                <tr>
+                    <td>Quadient (EU)</td>
+                    <td>200,000 - 500,000 Kč</td>
+                    <td style="color: #4caf50;">až 90%</td>
+                </tr>
+                <tr>
+                    <td><strong>MyBox (CZ)</strong></td>
+                    <td><strong style="color: #ffd54f;">19,000 - 70,000 Kč</strong></td>
+                    <td>-</td>
+                </tr>
+            </table>
+            <p style="text-align: center; margin-top: 30px;">
+                <span class="highlight">Průměrná prodejní cena: 35,000 Kč</span>
+            </p>
+        </div>
+
+        <!-- Slide 5: Obchodní model -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">5/15</div>
+            <h2>Obchodní model</h2>
+            <h3>Distribuce výnosů</h3>
+            <div class="chart">
+                <div class="bar" style="height: 50%;">
+                    <span class="bar-value">50%</span>
+                    <span class="bar-label">Hrubá marže</span>
+                </div>
+                <div class="bar" style="height: 25%; background: linear-gradient(to top, #ff9800, #ffb74d);">
+                    <span class="bar-value">25%</span>
+                    <span class="bar-label">Provize</span>
+                </div>
+                <div class="bar" style="height: 25%; background: linear-gradient(to top, #2196f3, #64b5f6);">
+                    <span class="bar-value">25%</span>
+                    <span class="bar-label">Čistá marže</span>
+                </div>
+            </div>
+            <h3>Distribuční kanály</h3>
+            <ul>
+                <li><strong>Česká pošta</strong> - 3,200 poboček, exkluzivní partnerství</li>
+                <li><strong>Přímý prodej</strong> - SVJ, developeři, e-commerce</li>
+                <li><strong>Online</strong> - E-shop www.my-box.cz</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Tržní potenciál -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">6/15</div>
+            <h2>Tržní potenciál</h2>
+            <h3>🇨🇿 Český trh</h3>
+            <ul>
+                <li>1.2M rodinných domů × 10% = <span class="highlight">120,000 jednotek</span></li>
+                <li>450,000 bytů v SVJ × 0.35 = <span class="highlight">157,500 jednotek</span></li>
+            </ul>
+            <p class="big-number">9.7 mld. Kč</p>
+            
+            <h3>🌍 Expanze 2026-2027</h3>
+            <div class="grid">
+                <div class="card">
+                    <h4>🇸🇰 Slovensko</h4>
+                    <p>1.75 mld. Kč</p>
+                </div>
+                <div class="card">
+                    <h4>🇦🇹 Rakousko</h4>
+                    <p>6.65 mld. Kč</p>
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 1.5em; margin-top: 30px;">
+                Celkový TAM: <span class="highlight">18.1 mld. Kč</span>
+            </p>
+        </div>
+
+        <!-- Slide 7: Finanční projekce -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">7/15</div>
+            <h2>Finanční projekce</h2>
+            <table>
+                <tr>
+                    <th>Rok</th>
+                    <th>Jednotky</th>
+                    <th>Obrat (mil. Kč)</th>
+                    <th>EBITDA marže</th>
+                </tr>
+                <tr>
+                    <td>2025</td>
+                    <td>5,000</td>
+                    <td>175</td>
+                    <td>15%</td>
+                </tr>
+                <tr>
+                    <td>2026</td>
+                    <td>15,000</td>
+                    <td>525</td>
+                    <td>22%</td>
+                </tr>
+                <tr>
+                    <td>2027</td>
+                    <td>35,000</td>
+                    <td>1,225</td>
+                    <td>28%</td>
+                </tr>
+                <tr>
+                    <td>2029</td>
+                    <td>90,000</td>
+                    <td><span class="highlight">3,150</span></td>
+                    <td><span class="highlight">35%</span></td>
+                </tr>
+            </table>
+            <ul style="margin-top: 30px;">
+                <li>Průměrný růst (CAGR): <span class="highlight">95%</span></li>
+                <li>Break-even: <span class="highlight">Q3 2026</span></li>
+                <li>ROI pro investory: <span class="highlight">580% do 5 let</span></li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Konkurenční výhody -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">8/15</div>
+            <h2>Konkurenční výhody</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>💰 Cenová dostupnost</h4>
+                    <p>70-90% levnější než konkurence</p>
+                </div>
+                <div class="card">
+                    <h4>🔧 Technologie</h4>
+                    <p>4 teplotní režimy, AI optimalizace</p>
+                </div>
+                <div class="card">
+                    <h4>🏠 Lokální expertise</h4>
+                    <p>Znalost trhu, podpora v češtině</p>
+                </div>
+                <div class="card">
+                    <h4>📦 Flexibilita</h4>
+                    <p>Od 1 boxu po 100+ instalace</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Případová studie -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">9/15</div>
+            <h2>Případová studie - SVJ Vinohrady</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>Výchozí stav</h4>
+                    <ul style="list-style: none;">
+                        <li>📍 120 bytových jednotek</li>
+                        <li>📦 50+ balíků denně</li>
+                        <li>🚨 3-5 krádeží měsíčně</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Výsledky po 6 měsících</h4>
+                    <ul>
+                        <li><span class="highlight">98%</span> spokojenost</li>
+                        <li><span class="highlight">0</span> krádeží</li>
+                        <li><span class="highlight">-75%</span> času správce</li>
+                        <li><span class="highlight">+15%</span> online nákupů</li>
+                    </ul>
+                </div>
+            </div>
+            <blockquote>
+                "MyBox kompletně změnil způsob, jak funguje doručování v našem domě."
+                <br><small>- Jan Novák, předseda SVJ</small>
+            </blockquote>
+        </div>
+
+        <!-- Slide 10: Go-to-Market -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">10/15</div>
+            <h2>Go-to-Market strategie</h2>
+            <h3>📅 Fáze 1: ČR (2025-2026)</h3>
+            <ul>
+                <li>Cílová skupina: Rodinné domy, malé SVJ</li>
+                <li>Kanál: Česká pošta + přímý prodej</li>
+            </ul>
+            
+            <h3>🏢 Fáze 2: B2B (2026-2027)</h3>
+            <ul>
+                <li>Cílová skupina: Velké SVJ, developeři</li>
+                <li>Produkty: Komplexní řešení, servis</li>
+            </ul>
+            
+            <h3>🌍 Fáze 3: Expanze (2027+)</h3>
+            <ul>
+                <li>Trhy: Slovensko, Rakousko, Německo</li>
+                <li>Model: Master franchise / JV</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: SWOT -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">11/15</div>
+            <h2>SWOT Analýza</h2>
+            <div class="grid">
+                <div class="card" style="background: rgba(76,175,80,0.2);">
+                    <h4>💪 Silné stránky</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>✓ Cenová konkurenceschopnost</li>
+                        <li>✓ Technologická vyspělost</li>
+                        <li>✓ Partnerství s Českou poštou</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: rgba(255,152,0,0.2);">
+                    <h4>⚠️ Slabé stránky</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>• Nová značka</li>
+                        <li>• Omezené finance</li>
+                        <li>• Závislost na partnerech</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: rgba(33,150,243,0.2);">
+                    <h4>🚀 Příležitosti</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>↗ Růst e-commerce 15% ročně</li>
+                        <li>↗ ESG regulace</li>
+                        <li>↗ Nedostatečná konkurence v CEE</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: rgba(244,67,54,0.2);">
+                    <h4>⚡ Hrozby</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>⚠ Vstup globálních hráčů</li>
+                        <li>⚠ Technologické změny</li>
+                        <li>⚠ Ekonomická recese</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Investiční příležitost -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">12/15</div>
+            <h2>Investiční příležitost</h2>
+            <p class="big-number">50 mil. Kč</p>
+            <p style="text-align: center; font-size: 1.5em;">Series A kolo</p>
+            
+            <h3>Využití kapitálu</h3>
+            <div class="chart">
+                <div class="bar" style="height: 40%;">
+                    <span class="bar-value">40%</span>
+                    <span class="bar-label">Výroba</span>
+                </div>
+                <div class="bar" style="height: 25%; background: linear-gradient(to top, #9c27b0, #ba68c8);">
+                    <span class="bar-value">25%</span>
+                    <span class="bar-label">R&D</span>
+                </div>
+                <div class="bar" style="height: 20%; background: linear-gradient(to top, #ff5722, #ff8a65);">
+                    <span class="bar-value">20%</span>
+                    <span class="bar-label">Marketing</span>
+                </div>
+                <div class="bar" style="height: 15%; background: linear-gradient(to top, #607d8b, #90a4ae);">
+                    <span class="bar-value">15%</span>
+                    <span class="bar-label">Provoz</span>
+                </div>
+            </div>
+            
+            <h3>Nabízíme</h3>
+            <ul>
+                <li><span class="highlight">20% podíl</span> ve společnosti</li>
+                <li>Místo v představenstvu</li>
+                <li>Exit: IPO nebo prodej do 5 let</li>
+            </ul>
+        </div>
+
+        <!-- Slide 13: Proč MyBox -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">13/15</div>
+            <h2>Proč investovat do MyBox?</h2>
+            <ul>
+                <li>✓ <strong>Správný timing</strong> - E-commerce roste 15% ročně</li>
+                <li>✓ <strong>Ověřený koncept</strong> - Piloty s 5 SVJ, LOI od České pošty</li>
+                <li>✓ <strong>Škálovatelnost</strong> - Asset-light model, recurring revenue</li>
+                <li>✓ <strong>Udržitelnost</strong> - Snížení CO2 o 30%, ESG compliance</li>
+            </ul>
+            
+            <h3>Dosažené milníky</h3>
+            <ul>
+                <li>✅ Funkční prototyp s teplotní kontrolou</li>
+                <li>✅ Předobjednávky za 15M Kč</li>
+                <li>✅ Patent pending na modulární systém</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Další kroky -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">14/15</div>
+            <h2>Další kroky</h2>
+            <h3>📅 Q3 2025</h3>
+            <ul>
+                <li>Uzavření Series A</li>
+                <li>Spuštění sériové výroby</li>
+                <li>Launch s Českou poštou</li>
+            </ul>
+            
+            <h3>📅 Q4 2025</h3>
+            <ul>
+                <li>Instalace prvních 1,000 jednotek</li>
+                <li>3 velcí B2B klienti</li>
+                <li>Příprava expanze SK/AT</li>
+            </ul>
+            
+            <h3>📅 2026</h3>
+            <ul>
+                <li>15,000 instalovaných jednotek</li>
+                <li>Vstup na slovenský trh</li>
+                <li>Series B fundraising</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15: Kontakt -->
+        <div class="slide">
+            <div class="logo">MyBox</div>
+            <div class="slide-number">15/15</div>
+            <h1>Děkujeme za pozornost</h1>
+            <h2 style="margin-top: 40px;">Kontakt</h2>
+            <p style="font-size: 1.5em; margin: 20px 0;">
+                📧 invest@my-box.cz<br>
+                📱 +420 XXX XXX XXX<br>
+                🌐 www.my-box.cz
+            </p>
+            <blockquote style="margin-top: 40px;">
+                "Doručujeme budoucnost - bezpečně, pohodlně, kdykoliv"
+            </blockquote>
+            <a href="#" class="cta">Domluvit schůzku</a>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button onclick="previousSlide()">← Zpět</button>
+        <button onclick="nextSlide()">Další →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Touch navigation for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+    </script>
+</body>
+</html>
