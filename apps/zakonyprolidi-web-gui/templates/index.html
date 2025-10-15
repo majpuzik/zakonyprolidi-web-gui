@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zákony pro lidi - AI Asistent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: border 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .search-btn:hover {
+            background: #5568d3;
+        }
+
+        .ai-chat {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: 20%;
+        }
+
+        .message.ai {
+            background: white;
+            margin-right: 20%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .results {
+            display: grid;
+            gap: 15px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-quote {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-meta {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .download-status {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background: #ddd;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 0 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏛️ Zákony pro lidi - AI Asistent</h1>
+            <p class="subtitle">Inteligentní vyhledávání v české legislativě s pomocí umělé inteligence</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-docs">...</div>
+                <div class="stat-label">Celkem dokumentů</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="tagged-docs">...</div>
+                <div class="stat-label">Otagováno</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pdf-docs">...</div>
+                <div class="stat-label">PDF dokumentů</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="ocr-docs">...</div>
+                <div class="stat-label">OCR provedeno</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('ai')">💬 AI Asistent</button>
+            <button class="tab" onclick="switchTab('search')">🔍 Vyhledávání</button>
+            <button class="tab" onclick="switchTab('download')">📥 Stahování</button>
+        </div>
+
+        <!-- AI Asistent Tab -->
+        <div id="ai-tab" class="tab-content active">
+            <h2>🤖 Zeptejte se AI na české zákony</h2>
+            <p style="color: #666; margin: 10px 0 20px 0;">
+                Položte otázku v češtině a AI vám odpoví na základě stažených zákonů a rozhodnutí.
+            </p>
+
+            <div class="ai-chat" id="ai-chat"></div>
+
+            <div class="search-box">
+                <input type="text"
+                       id="ai-question"
+                       class="search-input"
+                       placeholder="Např: Jaká je maximální výše pokuty za překročení rychlosti?"
+                       onkeypress="if(event.key==='Enter') askAI()">
+                <button class="search-btn" onclick="askAI()">Zeptat se AI</button>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search-tab" class="tab-content">
+            <h2>🔍 Vyhledávání v dokumentech</h2>
+
+            <div class="search-box">
+                <input type="text"
+                       id="search-query"
+                       class="search-input"
+                       placeholder="Hledejte podle názvu, čísla zákona nebo klíčového slova..."
+                       onkeypress="if(event.key==='Enter') search()">
+                <button class="search-btn" onclick="search()">Vyhledat</button>
+            </div>
+
+            <div id="search-results" class="results"></div>
+        </div>
+
+        <!-- Download Tab -->
+        <div id="download-tab" class="tab-content">
+            <h2>📥 Stahování dokumentů s PDF + OCR</h2>
+            <p style="color: #666; margin: 10px 0 20px 0;">
+                Stáhne dokumenty včetně konverze do PDF, OCR textu a všech příloh.
+            </p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📅 Datum od:</label>
+                    <input type="date" id="date-from">
+                </div>
+                <div class="form-group">
+                    <label>📅 Datum do:</label>
+                    <input type="date" id="date-to">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>⏱️ Novější než (dnů):</label>
+                    <input type="number" id="days-old" placeholder="např. 30 = posledních 30 dní">
+                </div>
+                <div class="form-group">
+                    <label>📊 Rok:</label>
+                    <input type="number" id="year" placeholder="např. 2025" min="1918" max="2025">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📄 Typ dokumentu:</label>
+                    <select id="doc-type">
+                        <option value="">Všechny typy</option>
+                        <option value="4">Zákon</option>
+                        <option value="2">Vyhláška</option>
+                        <option value="1">Nařízení vlády</option>
+                        <option value="3">Ústavní zákon</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>🔢 Max. dokumentů najednou:</label>
+                    <input type="number" id="max-docs" value="10" min="1" max="1000">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>⏸️ Pauza mezi stahováním (sekundy):</label>
+                <input type="number" id="pause-seconds" value="2" min="1" max="60">
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="startDownload()">🚀 Spustit stahování</button>
+                <button class="btn btn-danger" onclick="stopDownload()" style="margin-left: 10px;">⏹️ Zastavit</button>
+            </div>
+
+            <div id="download-status" class="download-status" style="display: none;">
+                <h3>📊 Stav stahování</h3>
+                <div id="current-doc" style="margin: 10px 0; color: #666;"></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress" style="width: 0%;">0%</div>
+                </div>
+                <div id="download-stats" style="color: #666;"></div>
+                <div id="download-errors"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Načti statistiky při startu
+        loadStats();
+
+        function switchTab(tabName) {
+            // Deaktivuj všechny
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            // Aktivuj vybraný
+            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+
+                document.getElementById('total-docs').textContent = stats.total_documents.toLocaleString();
+                document.getElementById('tagged-docs').textContent = stats.tagged_documents.toLocaleString();
+                document.getElementById('pdf-docs').textContent = stats.pdf_documents.toLocaleString();
+                document.getElementById('ocr-docs').textContent = stats.ocr_documents.toLocaleString();
+            } catch (error) {
+                console.error('Chyba při načítání statistik:', error);
+            }
+        }
+
+        async function askAI() {
+            const question = document.getElementById('ai-question').value.trim();
+            if (!question) return;
+
+            const chatDiv = document.getElementById('ai-chat');
+
+            // Přidej uživatelovu otázku
+            chatDiv.innerHTML += `
+                <div class="message user">
+                    <strong>Vy:</strong><br>${question}
+                </div>
+            `;
+
+            // Zobraz loading
+            chatDiv.innerHTML += `
+                <div class="message ai">
+                    <div class="spinner"></div>
+                    <div class="loading">AI přemýšlí...</div>
+                </div>
+            `;
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question})
+                });
+
+                const data = await response.json();
+
+                // Odstranění loading
+                chatDiv.querySelector('.loading').parentElement.remove();
+
+                // Přidej AI odpověď
+                let sourcesHtml = '';
+                if (data.sources && data.sources.length > 0) {
+                    sourcesHtml = '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">' +
+                                  '<strong>Zdroje:</strong><br>';
+                    data.sources.forEach(s => {
+                        sourcesHtml += `<span class="tag">${s.quote}</span>`;
+                    });
+                    sourcesHtml += '</div>';
+                }
+
+                chatDiv.innerHTML += `
+                    <div class="message ai">
+                        <strong>AI:</strong><br>${data.answer.replace(/\n/g, '<br>')}
+                        ${sourcesHtml}
+                    </div>
+                `;
+
+                document.getElementById('ai-question').value = '';
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+
+            } catch (error) {
+                chatDiv.querySelector('.loading').parentElement.innerHTML = `
+                    <div class="alert alert-error">Chyba: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function search() {
+            const query = document.getElementById('search-query').value.trim();
+            if (!query) return;
+
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Vyhledávám...</p></div>';
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query})
+                });
+
+                const data = await response.json();
+
+                if (data.documents.length === 0) {
+                    resultsDiv.innerHTML = '<div class="alert alert-warning">Nenalezeny žádné dokumenty.</div>';
+                    return;
+                }
+
+                let html = `<div class="alert alert-success">Nalezeno ${data.count} dokumentů</div>`;
+
+                data.documents.forEach(doc => {
+                    let tagsHtml = '';
+                    if (doc.tags) {
+                        try {
+                            const tags = JSON.parse(doc.tags);
+                            tags.forEach(tag => {
+                                tagsHtml += `<span class="tag">${tag}</span>`;
+                            });
+                        } catch (e) {}
+                    }
+
+                    html += `
+                        <div class="result-card" onclick="showDocument('${doc.code}')">
+                            <div class="result-quote">${doc.quote}</div>
+                            <div class="result-title">${doc.title}</div>
+                            <div class="result-meta">Rok: ${doc.year}</div>
+                            ${tagsHtml}
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="alert alert-error">Chyba: ${error.message}</div>`;
+            }
+        }
+
+        async function showDocument(code) {
+            try {
+                const response = await fetch(`/api/document/${code}`);
+                const doc = await response.json();
+
+                alert(`${doc.quote}\n\n${doc.title}\n\nRok: ${doc.year}\n` +
+                      `Typ: ${doc.doc_type}\n` +
+                      `PDF: ${doc.has_pdf ? 'Ano' : 'Ne'}\n` +
+                      `URL: https://www.zakonyprolidi.cz${doc.href}`);
+            } catch (error) {
+                alert('Chyba při načítání dokumentu: ' + error.message);
+            }
+        }
+
+        async function startDownload() {
+            const criteria = {
+                date_from: document.getElementById('date-from').value,
+                date_to: document.getElementById('date-to').value,
+                days_old: parseInt(document.getElementById('days-old').value) || null,
+                year: parseInt(document.getElementById('year').value) || null,
+                doc_type: document.getElementById('doc-type').value,
+                max_docs: parseInt(document.getElementById('max-docs').value) || 10,
+                pause_seconds: parseInt(document.getElementById('pause-seconds').value) || 2
+            };
+
+            try {
+                const response = await fetch('/api/download/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(criteria)
+                });
+
+                if (response.ok) {
+                    document.getElementById('download-status').style.display = 'block';
+                    monitorDownload();
+                } else {
+                    const error = await response.json();
+                    alert('Chyba: ' + error.error);
+                }
+            } catch (error) {
+                alert('Chyba při spuštění: ' + error.message);
+            }
+        }
+
+        async function stopDownload() {
+            try {
+                await fetch('/api/download/stop', {method: 'POST'});
+            } catch (error) {
+                console.error('Chyba při zastavení:', error);
+            }
+        }
+
+        function monitorDownload() {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/download/status');
+                    const status = await response.json();
+
+                    if (!status.is_running) {
+                        clearInterval(interval);
+                        loadStats(); // Obnov statistiky
+                    }
+
+                    // Aktualizuj UI
+                    const percent = status.total > 0
+                        ? Math.round((status.completed / status.total) * 100)
+                        : 0;
+
+                    document.getElementById('current-doc').textContent =
+                        status.current_doc ? `Aktuální: ${status.current_doc}` : 'Čekám...';
+
+                    const progressBar = document.getElementById('progress');
+                    progressBar.style.width = percent + '%';
+                    progressBar.textContent = percent + '%';
+
+                    document.getElementById('download-stats').textContent =
+                        `Staženo: ${status.completed} / ${status.total}`;
+
+                    // Chyby
+                    if (status.errors.length > 0) {
+                        document.getElementById('download-errors').innerHTML =
+                            '<div class="alert alert-error">' +
+                            '<strong>Chyby:</strong><br>' +
+                            status.errors.join('<br>') +
+                            '</div>';
+                    }
+
+                } catch (error) {
+                    console.error('Chyba při monitoringu:', error);
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
